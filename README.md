@@ -1,3 +1,11 @@
++----------------+-----------+-----------------+
+| Hadoop Release | Supported |  Testing date   |
++----------------+-----------+-----------------+
+| 1.0.3          | yes       | Aug. 20th, 2015 |
+| 2.x            | no        | Aug. 20th, 2015 |
++----------------+-----------+-----------------+
+
+
 The user is responsible for:
 
 Set the environment variable HADOOP_PREFIX to point to the Hadoop environment to be used
@@ -17,6 +25,4 @@ source set_tracing_environment.sh
 Notice that this step needs to be repeated for all machines (the AOP4Hadoop folder needs to be available from all nodes or replicated to the very same path in all nodes)
 
 Have fun...
-
-
 
