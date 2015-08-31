@@ -1,1 +1,1 @@
-export HADOOP_PREFIX=`pwd`/hadoop-1.0.3
+export HADOOP_PREFIX=/opt/hadoop-1.0.3

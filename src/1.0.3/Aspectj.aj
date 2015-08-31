@@ -4,6 +4,7 @@ import java.lang.management.ManagementFactory;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.net.InetAddress;
+import java.lang.ClassLoader;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -51,8 +52,12 @@ aspect Aspect {
 	private void instrumentation(String event, String when) {
 		try {
 
-			new File("/vagrant/workspace/instrumentation/logs").mkdir();
-			File logFile = new File("/vagrant/workspace/instrumentation/logs/log.csv");
+			URL path = ClassLoader.getSystemResource("release.txt");
+			File file = new File(path.toURI());
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String logPath = br.readLine();
+
+			File logFile = new File(logPath + "/log.csv");
 
 			String log = "\n";
 
