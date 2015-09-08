@@ -2,4 +2,4 @@ hadoop*
 user_provided_environment.sh
 environments
 vagrant/
-src/hadoop*
+src/*hadoop*
