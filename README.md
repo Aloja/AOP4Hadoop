@@ -35,5 +35,15 @@ source set_tracing_environment.sh
 Notice that this step needs to be repeated for all machines (the AOP4Hadoop folder needs to be available from all nodes or replicated to the very same path in all nodes)
 
 
+Finally, to produce the logs, the following lines need to be added to the log4j.conf
+````
+log4j.appender.ALOJA=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.ALOJA.File=${hadoop.log.dir}/aloja.log
+log4j.appender.ALOJA.layout=org.apache.log4j.PatternLayout
+log4j.appender.ALOJA.layout.ConversionPattern=%d{ISO8601}: %m%n
+log4j.logger.AlojaAspect=INFO, ALOJA
+log4j.additivity.AlojaAspect=false
+```
+
 Have fun...
 
