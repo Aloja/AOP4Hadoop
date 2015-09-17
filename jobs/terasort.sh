@@ -1,5 +1,6 @@
 HADOOP_EXECUTABLE="$HADOOP_PREFIX/bin/hadoop"
-HADOOP_EXAMPLES_JAR="$HADOOP_PREFIX/hadoop-examples-1.0.3.jar"
+HADOOP_EXAMPLES_JAR="$HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0.jar
+"
 
 DATA_HDFS=/HiBench
 INPUT_HDFS=${DATA_HDFS}/Terasort/Input
