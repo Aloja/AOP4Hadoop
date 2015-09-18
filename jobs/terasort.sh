@@ -10,10 +10,10 @@ CONFIG_REDUCER_NUMBER=mapred.reduce.tasks
 
 # for prepare (total) - 200MB
 # DATASIZE specifies the number of blocks of 100 bytes each
-DATASIZE=2000000
-NUM_MAPS=4
+DATASIZE=20000000
+NUM_MAPS=5
 # for running (total)
-NUM_REDS=4
+NUM_REDS=5
 
 $HADOOP_EXECUTABLE jar $HADOOP_EXAMPLES_JAR teragen \
     -D $CONFIG_MAP_NUMBER=$NUM_MAPS \
