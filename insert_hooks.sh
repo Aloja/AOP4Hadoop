@@ -28,6 +28,11 @@ do
 	export CLASSPATH=$CLASSPATH:"${i}"
 done
 
+for i in `ls ${HADOOP_PREFIX}/share/hadoop/hdfs/lib/*.jar `
+do
+	export CLASSPATH=$CLASSPATH:"${i}"
+done
+
 for i in `ls ${HADOOP_PREFIX}/share/hadoop/common/lib/*.jar `
 do
 	export CLASSPATH=$CLASSPATH:"${i}"
@@ -38,6 +43,8 @@ do
 	export CLASSPATH=$CLASSPATH:"${i}"
 done
 
+export CLASSPATH=$CLASSPATH:${HADOOP_PREFIX}/share/hadoop/yarn/hadoop-yarn-common-2.6.0.jar
+
 echo "###########################################################"
 echo "################# WEAVING HADOOP  #########################"
 echo "###########################################################"
@@ -45,14 +52,18 @@ echo "###########################################################"
 #echo "date,event moment,event,PID,Hostname,Extra data" > $INSTRUMENTATION_PATH/log.csv
 
 
-echo "################# WEAVING CORE ##########################"
+# echo "################# WEAVING CORE ##########################"
 
 
-ajc -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_CORE_FILE_PATH} $SOURCE_AJC/Aspect-2.0.6.aj -outjar $PATCHED_HADOOP_CORE_FILE > $INSTRUMENTATION_PATH/detectedPointCuts.txt
+# ajc -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_CORE_FILE_PATH} $SOURCE_AJC/Aspect-2.0.6.aj -outjar $PATCHED_HADOOP_CORE_FILE > $INSTRUMENTATION_PATH/detectedPointCuts.txt
 
 echo "################# WEAVING MAPRED ##########################"
 
-ajc -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_MAPRED_FILE_PATH} $SOURCE_AJC/Aspect-2.0.6.aj -outjar $PATCHED_HADOOP_MAPRED_FILE > $INSTRUMENTATION_PATH/detectedPointCuts.txt
+#ajc -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_MAPRED_FILE_PATH} $SOURCE_AJC/Aspect-2.6.0-mapred.aj -outjar $PATCHED_HADOOP_MAPRED_FILE > $INSTRUMENTATION_PATH/detectedPointCuts.txt
+
+echo "################# WEAVING HDFS ##########################"
+
+ajc -1.5 -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_HDFS_FILE_PATH} $SOURCE_AJC/Aspect-2.6.0-hdfs.aj -outjar $PATCHED_HADOOP_HDFS_FILE >> $INSTRUMENTATION_PATH/detectedPointCuts.txt
 
 echo "###########################################################"
 echo "################# WEAVING COMPLETE ########################"

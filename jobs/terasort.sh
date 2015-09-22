@@ -1,6 +1,5 @@
 HADOOP_EXECUTABLE="$HADOOP_PREFIX/bin/hadoop"
-HADOOP_EXAMPLES_JAR="$HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0.jar
-"
+HADOOP_EXAMPLES_JAR="$HADOOP_PREFIX/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0.jar"
 
 DATA_HDFS=/HiBench
 INPUT_HDFS=${DATA_HDFS}/Terasort/Input
@@ -11,7 +10,7 @@ CONFIG_REDUCER_NUMBER=mapred.reduce.tasks
 
 # for prepare (total) - 200MB
 # DATASIZE specifies the number of blocks of 100 bytes each
-DATASIZE=2000000
+DATASIZE=200000000
 NUM_MAPS=4
 # for running (total)
 NUM_REDS=4
