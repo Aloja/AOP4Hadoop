@@ -10,7 +10,7 @@ CONFIG_REDUCER_NUMBER=mapred.reduce.tasks
 
 # for prepare (total) - 200MB
 # DATASIZE specifies the number of blocks of 100 bytes each
-DATASIZE=20000000
+DATASIZE=2000000
 NUM_MAPS=5
 # for running (total)
 NUM_REDS=5

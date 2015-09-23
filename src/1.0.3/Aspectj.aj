@@ -299,7 +299,7 @@ aspect AlojaAspect {
 
 	after(int numSpills, long size) returning : sortAndSpillSpillFile(numSpills, size){
 		String s = "sortAndSpillSpillFile";
-		instrumentation(s,"after",", numSpills: " +Integer.toString(numSpills) + ", size: " + Long.toString((size*numSpills) + size));
+		instrumentation(s,"after",", numSpills: " +Integer.toString(numSpills) + ";size: " + Long.toString((size*numSpills) + size));
 	}
 
 	// SpillIndex File Size
@@ -435,7 +435,7 @@ aspect AlojaAspect {
 		String s = "Network-CreateDFSFile";
 
 		//MODIFIED!!!!!!-----!!!!!!!!!!!
-		instrumentation(s,"after",", path: " + src + ", permission: " + permission.toString()); // + ", overwrite: " + String.valueOf(overwrite) + ", createParent: " + String.valueOf(createParent) + ", replication: " + Short.toString(replication) + ", blockSize: " + Long.toString(blockSize) + ", buffersize: " + Integer.toString(buffersize));
+		instrumentation(s,"after",", path: " + src + ";permission: " + permission.toString() + ";overwrite: " + String.valueOf(overwrite) + ";createParent: " + String.valueOf(createParent) + ";replication: " + Short.toString(replication) + ";blockSize: " + Long.toString(blockSize) + ";buffersize: " + Integer.toString(buffersize));
 	}
 	before(): runDataStreamer() {
 		String s = "DataStreamer";
@@ -455,11 +455,11 @@ aspect AlojaAspect {
 	after(Socket sock, String file, long blockId, Token<BlockTokenIdentifier> accessToken, long genStamp, long startOffset, long len, int bufferSize, boolean verifyChecksum, String clientName) : newBlockReader(sock,file,blockId,accessToken,genStamp,startOffset,len,bufferSize,verifyChecksum,clientName) {
 		String s = "Network-NewBlockReader";
 		String extra = ", DataNode: " + sock.getInetAddress().getCanonicalHostName();
-		extra += ", file: " + file;
+		extra += ";file: " + file;
 		//extra += ", length: " + Long.toString(len) + "B";
-		extra += "," + Long.toString(len);
-		extra += ", blockId: " + Long.toString(blockId);
-		extra += ", startOffset: " + Long.toString(startOffset);		
+		extra += ";" + Long.toString(len);
+		extra += ";blockId: " + Long.toString(blockId);
+		extra += ";startOffset: " + Long.toString(startOffset);		
 		instrumentation(s,"after",extra);
 	}
 }
