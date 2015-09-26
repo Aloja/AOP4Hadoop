@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-. local_environment.sh
+. env.sh
 . set_tracing_environment.sh
 
 echo "###########################################################"
