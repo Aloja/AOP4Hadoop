@@ -16,13 +16,7 @@ HADOOP_VERSION: version of the Hadoop distribution pointed by HADOOP_PREFIX (exa
 JAVA_HOME: location of your JAVA JDK (recommended 1.8+)
 ```
 
-After that you need to run:
-
-```
-source env.sh
-```
-
-From the AOP4Hadoop folder run the following scritp once:
+After that run the following script to generate the instrumented jar files:
 ```
 ./insert_hooks.sh
 ```
