@@ -1,21 +1,30 @@
     +----------------+-----------+-----------------+
-    | Hadoop Release | Supported |  Testing date   |
+    | Hadoop Release | Supported |  Initial date   |
     +----------------+-----------+-----------------+
     | 1.0.3          | yes       | Aug. 20th, 2015 |
-    | 2.x            | no        | Aug. 20th, 2015 |
+    | 2.x            | no        |        -        |
     +----------------+-----------+-----------------+
 
 
-The user is responsible for:
+Usage instructions:
 
-Set the environment variable HADOOP_PREFIX to point to the Hadoop environment to be used and also to specify the exact Hadoop version to be used in the following script:
+Copy env.sh.sample to env.sh and edit the following variables:
 
 ```
-user-provided-env.sh
+HADOOP_PREFIX: the folder where a binary Hadoop distribution has been placed. Recommended location is the dist folder
+HADOOP_VERSION: version of the Hadoop distribution pointed by HADOOP_PREFIX (example: 1.0.3)
+JAVA_HOME: location of your JAVA JDK (recommended 1.8+)
 ```
-From the AOP4Hadoop folder run the following scritps once:
+
+After that you need to run:
+
 ```
-insert_hooks.sh
+source env.sh
+```
+
+From the AOP4Hadoop folder run the following scritp once:
+```
+./insert_hooks.sh
 ```
 
 Everytime that an instrumented execution is desired, add the following 2 lines to *$HADOOP_PREFIX/conf/hadoop-env.sh*

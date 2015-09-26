@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ "$JAVA_HOME" = "" ] ; then echo JAVA_HOME needs to be defined
+fi
+
+ASPECTJ_HOME=$ROOT
+
+"$JAVA_HOME/bin/java" -Xmx512m -classpath "$ASPECTJ_HOME/lib/aspectjtools.jar:$JAVA_HOME/lib/tools.jar:$CLASSPATH" org.aspectj.tools.ajc.Main "$@"
