@@ -49,6 +49,29 @@ aspect AlojaAspect {
 		return Long.parseLong(name.split("@")[0]);
 	}
 
+	private void generateEvent(Integer key, Integer value) {
+		//2:cpu:app:task:thread:time:type:value
+		try{
+			String hostname = InetAddress.getLocalHost().getHostName();
+			long pid = getPID();
+			LOG.info(hostname+","+pid+",2:"+hostname+":2:"+pid+":1:TIME:"+key+":"+value);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
+
+	/*private void generateEVent(Integer key[], Integer value) {
+
+		StringBuffer output = new StringBuffer();
+
+
+		output.append()
+
+	}*/
+
 	private void instrumentation(String event, String when) {
 
 		instrumentation(event, when, "");
@@ -122,7 +145,8 @@ aspect AlojaAspect {
 		###########################################################################
 	*/
 
-	pointcut mapper(): execution(* org.apache.hadoop.mapred.MapTask.run(..));
+	pointcut maptask(): execution(* org.apache.hadoop.mapred.MapTask.run(..));
+	pointcut mapper(): call(* org.apache.hadoop.mapred.MapTask.runNewMapper(..)) && withincode(* org.apache.hadoop.mapred.MapTask.run(..));
 	pointcut flush(): execution(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.flush());
 
 
@@ -195,51 +219,40 @@ aspect AlojaAspect {
 	//RegisterDataNode 
 
 	after() : startDataNode(){
-		String s = "RegisterDataNode";
-		instrumentation(s,"after");
+		generateEvent(11115, 1);
 	}
 
 	//RegisterNameNode
 
 	after() : initializeNameNode(){
-		String s = "RegisterNameNode";
-		instrumentation(s,"after");
+		generateEvent(11113, 1);
 	}
 
 
 	//RegisterSecondaryNamenode
 
 	after() : initializeSecondaryNameNode(){
-		String s = "RegisterSecondaryNameNode";
-		instrumentation(s,"after");
+		generateEvent(11114, 1);
 	}
 
 
 	//RegisterTask CHILD
  
 	after() : initializeChild() {
-		String s = "ChildCreation";
-		instrumentation(s,"after");
+		generateEvent(11116, 1);
 	}
 	
 	// RegiterJobTracker
 
 	after() : registerJobTracker(){
-		String s = "registerJobTracker";
-		instrumentation(s,"after");
+		generateEvent(11111, 1);
+
 	}
 
 	//HEARTBEAT 
 	after() : heartbeat(){
-		String s = "Heartbeat";
-		instrumentation(s,"after");
+		generateEvent(11118, 1);
 	}
-/*
-	before() : heartbeat(){
-		String s = "Heartbeat";
-		instrumentation(s,"before");
-	}
-*/	
 
 
 	/*
@@ -260,15 +273,18 @@ aspect AlojaAspect {
 	*/
 
 
+	before() : maptask(){
+		generateEvent(11116, 1);
+	}
+
 	before() : mapper(){
-		String s = "Mapper";
-		instrumentation(s,"before");
+		generateEvent(11117, 1);
 	}
 
 	after() : mapper(){
-		String s = "Mapper";
-		instrumentation(s,"after");
+		generateEvent(11117, 0);
 	}
+
 
 	//flush
 
