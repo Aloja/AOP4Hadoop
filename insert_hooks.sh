@@ -38,6 +38,10 @@ do
 	export CLASSPATH=$CLASSPATH:"${i}"
 done
 
+for i in `ls ${HADOOP_PREFIX}/share/hadoop/hdfs/lib/*.jar `
+do
+	export CLASSPATH=$CLASSPATH:"${i}"
+done
 
 echo "###########################################################"
 echo "################# WEAVING HADOOP  #########################"
@@ -56,7 +60,7 @@ echo "################# WEAVING MAPRED ##########################"
 #ajc -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_MAPRED_FILE_PATH} $SOURCE_AJC/Aspect-2.6.0-mapred.aj -outjar $PATCHED_HADOOP_MAPRED_FILE > $INSTRUMENTATION_PATH/detectedPointCuts.txt
 
 echo "################# WEAVING HDFS ##########################"
-echo $CLASSPATH
+#echo $CLASSPATH
 
 ajc -1.6 -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_HDFS_FILE_PATH} $SOURCE_AJC/Aspect-2.6.0-hdfs.aj -outjar $PATCHED_HADOOP_HDFS_FILE >> $INSTRUMENTATION_PATH/detectedPointCuts.txt
 
