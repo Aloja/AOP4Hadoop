@@ -7,10 +7,10 @@ OUTPUT_HDFS=${DATA_HDFS}/Sort/Output
 
 # sort 400MB total
 # for prepare (per node) - 200MB/node
-DATASIZE=2000000000
+DATASIZE=200000
 NUM_MAPS=2
 # for running (in total)
-NUM_REDS=4
+NUM_REDS=2
 
 $HADOOP_EXECUTABLE jar $HADOOP_EXAMPLES_JAR randomtextwriter \
 -D test.randomtextwrite.bytes_per_map=$((${DATASIZE} / ${NUM_MAPS})) \

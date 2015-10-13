@@ -58,28 +58,23 @@ aspect AlojaAspect2 {
 	}
 	//Pointcuts
 
-	/*
-		###########################################################################
-		############################NETWORK########################################
-		###########################################################################
-	*/
-
 	pointcut defaultBlockSize(): call(* org.apache.hadoop.hdfs.DFSClient.getDefaultBlockSize());
 	pointcut createDFSFile(String src,FsPermission permission,EnumSet<CreateFlag> flag,boolean createParent,short replication,long blockSize,Progressable progress,int buffersize,ChecksumOpt checksumOpt,InetSocketAddress[] favoredNodes): execution (* org.apache.hadoop.hdfs.DFSClient.create(..)) && args(src,permission,flag,createParent,replication,blockSize,progress,buffersize,checksumOpt,favoredNodes);
 	pointcut newBlockReader(String file,ExtendedBlock block,Token<BlockTokenIdentifier> blockToken,long startOffset, long len,boolean verifyChecksum,String clientName,Peer peer, DatanodeID datanodeID): execution (* org.apache.hadoop.hdfs.RemoteBlockReader2.newBlockReader(..)) && args(file,block,blockToken,startOffset,len,verifyChecksum,clientName,peer,datanodeID,..);
-	pointcut localBlockReader() : call (org.apache.hadoop.hdfs.BlockReaderLocal.new(..));
+	pointcut localBlockReader(): call (org.apache.hadoop.hdfs.BlockReaderLocal.new(..));
+	pointcut saveNameSpace(): execution(* org.apache.hadoop.hdfs.server.namenode.FSNamesystem.saveNamespace());
 	//Advices
 
 	after() returning(long blockSize) : defaultBlockSize() {
-		String s = "Network-defaultBlockSize";
+		String s = "HDFS-defaultBlockSize";
 		instrumentation(s,"after",", size: " + Long.toString(blockSize));
 	}
 	after(String src,FsPermission permission,EnumSet<CreateFlag> flag,boolean createParent,short replication,long blockSize,Progressable progress,int buffersize,ChecksumOpt checksumOpt,InetSocketAddress[] favoredNodes): createDFSFile(src,permission,flag,createParent,replication,blockSize,progress,buffersize,checksumOpt,favoredNodes) {
-		String s = "Network-CreateDFSFile";
+		String s = "HDFS-CreateDFSFile";
 		instrumentation(s,"after",", path: " + src + "; permission: " + permission.toString() + "; createParent: " + String.valueOf(createParent) + "; replication: " + Short.toString(replication) + "; blockSize: " + Long.toString(blockSize) + "; buffersize: " + Integer.toString(buffersize));
 	}
 	after(String file,ExtendedBlock block,Token<BlockTokenIdentifier> blockToken,long startOffset, long len,boolean verifyChecksum,String clientName,Peer peer, DatanodeID datanodeID) : newBlockReader(file,block,blockToken,startOffset,len,verifyChecksum,clientName,peer,datanodeID) {
-		String s = "Network-RemoteRead";
+		String s = "HDFS-RemoteRead";
 		String extra = ", DataNode: " + datanodeID.getHostName();
 		extra += "; ClientName: " + clientName;
 		extra += "; file: " + file;
@@ -89,7 +84,11 @@ aspect AlojaAspect2 {
 		 instrumentation(s,"after",extra);
 	}
 	after() returning: localBlockReader() {
-		String s = "Network-LocalRead";
+		String s = "HDFS-LocalRead";
+		instrumentation(s,"after");
+	}
+	after() : saveNameSpace() {
+		String s = "HDFS-saveNameSpace";
 		instrumentation(s,"after");
 	}
 }
