@@ -29,6 +29,11 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.conf.Configuration;
 
+
+
+
+
+
 /**
  *
  * @author Alejandro
@@ -54,10 +59,11 @@ aspect AlojaAspect {
 		try{
 			String hostname = InetAddress.getLocalHost().getHostName();
 			long pid = getPID();
-			LOG.info(hostname+","+pid+",2:"+hostname+":2:"+pid+":1:TIME:"+key+":"+value);
+			LOG.info(hostname+","+pid+",2:"+hostname+":2:"+pid+":1:"+System.currentTimeMillis()+":"+key+":"+value);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			LOG.error(e, e);
+
 		}
 	}
 
@@ -251,7 +257,7 @@ aspect AlojaAspect {
 
 	//HEARTBEAT 
 	after() : heartbeat(){
-		generateEvent(11118, 1);
+		generateEvent(11119, 1);
 	}
 
 
