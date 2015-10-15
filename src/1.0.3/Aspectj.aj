@@ -317,7 +317,8 @@ aspect AlojaAspect {
 
 	//HEARTBEAT 
 	after(TaskTrackerStatus status,boolean restarted,boolean initialContact,boolean acceptNewTasks,short responseId) : heartbeat(status, restarted, initialContact, acceptNewTasks,responseId){
-		generateEvent(Events.JobTracker, status.getTrackerName());
+		// SAMPLE trackername: tracker_vagrant-99-01:localhost/127.0.0.1:38149
+		generateEvent(Events.JobTracker, status.getTrackerName().replace(':','-').replace('/','_'));
 	}
 
 
