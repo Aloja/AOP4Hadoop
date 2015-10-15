@@ -22,6 +22,7 @@ import org.apache.hadoop.hdfs.security.token.block.BlockTokenIdentifier;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.hdfs.DFSClient;
 
+import org.apache.hadoop.mapred.TaskTrackerStatus;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +43,54 @@ import org.apache.hadoop.conf.Configuration;
 aspect AlojaAspect {		
 
 	private static final Log LOG = LogFactory.getLog(AlojaAspect.class);
+
+	/*
+	TYPES
+	######################################################################################################################################
+	######################################################################################################################################
+	*/
+
+    public static class Events {
+
+        public static final int JobTracker = 11111;
+        public static final int TaskTracker = 11112;
+        public static final int NameNode = 11113;
+        public static final int SecondaryNameNode = 11114;
+        public static final int DataNode = 11115;
+        public static final int Task = 11116;
+//        public static final int MapTask = 11117;
+//        public static final int ReduceTask = 11118;
+        public static final int MapOutputBuffer = 33333;
+        public static final int MapTaskOutputSize = 44444;
+    }
+
+    public static class Values {
+
+       	// Generic
+		public static final int End = 0;        
+        public static final int Start = 1;
+        
+        // Events.TaskTracker 
+		public static final int RunMapper = 8;
+        public static final int RunReducer = 9;
+        public static final int Combine = 4;
+        public static final int ReducerCopyPhase = 10;
+        public static final int ReducerSortPhase = 11;
+        public static final int ReducerReducePhase = 12;
+
+		// Events.JobTracker
+		public static final int HeartBeat = 13;
+
+
+
+        public static final int Flush = 1;
+        public static final int SortAndSpill = 2;
+        public static final int Sort = 3;        
+        public static final int CreateSpillIndexFile = 5;
+        public static final int TotalIndexCacheMemory = 6;
+        public static final int SpillRecordDumped = 7;
+    }    
+
 
 	/*
 	FUNCTIONS
@@ -68,6 +117,19 @@ aspect AlojaAspect {
 	}
 
 
+	private void generateEvent(Integer key, String value) {
+		//2:cpu:app:task:thread:time:type:value
+		try{
+			String hostname = InetAddress.getLocalHost().getHostName();
+			long pid = getPID();
+			LOG.info(hostname+","+pid+",2:"+hostname+":2:"+pid+":1:"+System.currentTimeMillis()+":"+key+":"+value);
+		}
+		catch (Exception e) {
+			LOG.error(e, e);
+
+		}
+	}
+
 
 	/*private void generateEVent(Integer key[], Integer value) {
 
@@ -93,7 +155,7 @@ aspect AlojaAspect {
 			log += "," + when + "," + event;
 			//Specify event
 			log += additional;
-			LOG.info(log);
+			//LOG.info(log);
 			//writeLog(logFile,log);
 
 
@@ -134,7 +196,7 @@ aspect AlojaAspect {
 
 	//HEARTBEAT
 
-	pointcut heartbeat(): execution(* org.apache.hadoop.mapred.JobTracker.heartbeat(..));
+	pointcut heartbeat(TaskTrackerStatus status,boolean restarted,boolean initialContact,boolean acceptNewTasks,short responseId): execution(* org.apache.hadoop.mapred.JobTracker.heartbeat(..)) && args(status, restarted, initialContact, acceptNewTasks,responseId);
 
 	/*
 		###########################################################################
@@ -151,7 +213,7 @@ aspect AlojaAspect {
 		###########################################################################
 	*/
 
-	pointcut maptask(): execution(* org.apache.hadoop.mapred.MapTask.run(..));
+	//pointcut maptask(): execution(* org.apache.hadoop.mapred.MapTask.run(..));
 	pointcut mapper(): call(* org.apache.hadoop.mapred.MapTask.runNewMapper(..)) && withincode(* org.apache.hadoop.mapred.MapTask.run(..));
 	pointcut flush(): execution(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.flush());
 
@@ -193,11 +255,11 @@ aspect AlojaAspect {
 	*/
 
 	//REDUCETASK RUN
-
 	pointcut reducer(): execution(* org.apache.hadoop.mapred.ReduceTask.run(..));
-	pointcut initCopy(): call(* *.initCodec(..)) && withincode(* org.apache.hadoop.mapred.ReduceTask.run(..));
-	pointcut endPhase(TaskStatus.Phase phase): call(* *.setPhase(..)) && withincode(* org.apache.hadoop.mapred.ReduceTask.run(..)) && args(phase);
+	pointcut initCodec(): call(* *.initCodec(..)) && withincode(* org.apache.hadoop.mapred.ReduceTask.run(..));
+	pointcut setPhase(TaskStatus.Phase phase): call(* *.setPhase(..)) && withincode(* org.apache.hadoop.mapred.ReduceTask.run(..)) && args(phase);
 
+	
 	//pointcut endCopy(): call(* *.setPhase(..)) && withincode(* org.apache.hadoop.mapred.ReduceTask.run(..));
 	//pointcut endSort(): call(* *.getMapOutputKeyClass(..)) && withincode(* org.apache.hadoop.mapred.ReduceTask.run(..));
 	
@@ -222,42 +284,39 @@ aspect AlojaAspect {
 	######################################################################################################################################
 	*/
 
-	//RegisterDataNode 
+	// RegiterJobTracker
 
-	after() : startDataNode(){
-		generateEvent(11115, 1);
+	after() : registerJobTracker(){
+		generateEvent(Events.JobTracker, Values.Start);
+
 	}
+
+	//RegisterTaskTracker ?
+
 
 	//RegisterNameNode
 
 	after() : initializeNameNode(){
-		generateEvent(11113, 1);
+		generateEvent(Events.NameNode, Values.Start);
+	}
+
+	//RegisterDataNode 
+
+	after() : startDataNode(){
+		generateEvent(Events.DataNode, Values.Start);
 	}
 
 
 	//RegisterSecondaryNamenode
 
 	after() : initializeSecondaryNameNode(){
-		generateEvent(11114, 1);
+		generateEvent(Events.SecondaryNameNode, Values.Start);
 	}
 
-
-	//RegisterTask CHILD
- 
-	after() : initializeChild() {
-		generateEvent(11116, 1);
-	}
-	
-	// RegiterJobTracker
-
-	after() : registerJobTracker(){
-		generateEvent(11111, 1);
-
-	}
 
 	//HEARTBEAT 
-	after() : heartbeat(){
-		generateEvent(11119, 1);
+	after(TaskTrackerStatus status,boolean restarted,boolean initialContact,boolean acceptNewTasks,short responseId) : heartbeat(status, restarted, initialContact, acceptNewTasks,responseId){
+		generateEvent(Events.JobTracker, status.getTrackerName());
 	}
 
 
@@ -267,7 +326,13 @@ aspect AlojaAspect {
 		###########################################################################
 	*/
 
-	after() returning(long size) : outputSize() {
+	//RegisterTask CHILD 
+	after() : initializeChild() { //We need the  PID of this task to be registered
+		generateEvent(Events.Task, Values.Start);
+	}
+
+
+/*	after() returning(long size) : outputSize() {
 		String s = "Task-outputSize";
 		instrumentation(s,"after",", size: " + Long.toString(size));
 	}
@@ -279,16 +344,16 @@ aspect AlojaAspect {
 	*/
 
 
-	before() : maptask(){
-		generateEvent(11116, 1);
-	}
+	/*before() : maptask(){
+		generateEvent(Events.MapTask, Values.Start);
+	}*/
 
 	before() : mapper(){
-		generateEvent(11117, 1);
+		generateEvent(Events.TaskTracker, Values.RunMapper);
 	}
 
 	after() : mapper(){
-		generateEvent(11117, 0);
+		generateEvent(Events.TaskTracker, Values.End);
 	}
 
 
@@ -398,42 +463,36 @@ aspect AlojaAspect {
 		###########################################################################
 	*/
 
-	before() : reducer(){
+/*	before() : reducer(){
 		String s = "Reducer";
 		instrumentation(s,"before");
 	}
+*/
 
-	after() returning : initCopy() {
-		String s = "Reducer-copy-phase";
-		instrumentation(s,"before");
+	before() : initCodec() {
+		generateEvent(Events.TaskTracker, Values.RunReducer);
 	}
 
-	before(TaskStatus.Phase phase) : endPhase(phase) {
-		if (phase == TaskStatus.Phase.SORT){
-			String s = "Reducer-copy-phase";
-			instrumentation(s,"after"); 
-		}
-		else if (phase == TaskStatus.Phase.REDUCE) {
-			String s = "Reducer-sort-phase";
-			instrumentation(s,"after");
-		}
+
+	after() returning : initCodec() {
+		generateEvent(Events.TaskTracker, Values.ReducerCopyPhase);
 	}
 
-	after(TaskStatus.Phase phase) returning: endPhase(phase) { 
+	before(TaskStatus.Phase phase) : setPhase(phase) { //END OF A PHASE (SORT OR COPY)
+			generateEvent(Events.TaskTracker, Values.End);
+	}
+
+	after(TaskStatus.Phase phase) returning: setPhase(phase) { 
 		if (phase == TaskStatus.Phase.SORT) {
-			String s = "Reducer-sort-phase";
-			instrumentation(s,"before");
+			generateEvent(Events.TaskTracker, Values.ReducerSortPhase);
 		}
 		else if (phase == TaskStatus.Phase.REDUCE) {
-			String s = "Reducer-reduce-phase";
-			instrumentation(s,"before");
+			generateEvent(Events.TaskTracker, Values.ReducerReducePhase);
 		}
 	}
 
-	after() : reducer(){
-		String s = "Reducer-reduce-phase";
-		instrumentation(s,"after");
-	}
+	after() : reducer(){ //END OF REDUCE PHASE
+			generateEvent(Events.TaskTracker, Values.End);	}
 
 	/*
 		###########################################################################
