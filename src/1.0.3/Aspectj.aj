@@ -73,7 +73,6 @@ aspect AlojaAspect {
         // Events.TaskTracker 
 		public static final int RunMapper = 8;
         public static final int RunReducer = 9;
-        public static final int Combine = 4;
         public static final int ReducerCopyPhase = 10;
         public static final int ReducerSortPhase = 11;
         public static final int ReducerReducePhase = 12;
@@ -82,13 +81,14 @@ aspect AlojaAspect {
 		public static final int HeartBeat = 13;
 
 
-
+		// Events.MapOutputBuffer
         public static final int Flush = 1;
         public static final int SortAndSpill = 2;
         public static final int Sort = 3;        
         public static final int CreateSpillIndexFile = 5;
-        public static final int TotalIndexCacheMemory = 6;
+        //public static final int TotalIndexCacheMemory = 6;
         public static final int SpillRecordDumped = 7;
+        public static final int Combine = 4;
     }    
 
 
@@ -215,13 +215,15 @@ aspect AlojaAspect {
 
 	//pointcut maptask(): execution(* org.apache.hadoop.mapred.MapTask.run(..));
 	pointcut mapper(): call(* org.apache.hadoop.mapred.MapTask.runNewMapper(..)) && withincode(* org.apache.hadoop.mapred.MapTask.run(..));
-	pointcut flush(): execution(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.flush());
 
 
 	//  ############################SORT AND SPILL#################################
 
 	//Start-End
 	pointcut taskSortAndSpill(): execution(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.sortAndSpill());
+
+
+	pointcut flush(): execution(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.flush());
 
 	//Spill File Size
 	pointcut sortAndSpillSpillFile(int numSpills, long size) : call (* *.getSpillFileForWrite(..)) && withincode(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.sortAndSpill()) && args(numSpills, size);
@@ -233,14 +235,13 @@ aspect AlojaAspect {
 	pointcut sortAndSpillSort(int kvstart, int endPosition, Object reporter): call(* *.sort(..)) && withincode(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.sortAndSpill()) && args(..,kvstart,endPosition,reporter);
 
 	//Init Writer
-	pointcut sortAndSpillInitWriter() : call (org.apache.hadoop.mapred.IFile.Writer.new(..)) && withincode(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.sortAndSpill());
+	//pointcut sortAndSpillInitWriter() : call (org.apache.hadoop.mapred.IFile.Writer.new(..)) && withincode(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.sortAndSpill());
 
 	//Close Writer
-	pointcut sortAndSpillCloseWriter() : call (void org.apache.hadoop.mapred.IFile.Writer.close(..)) && withincode(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.sortAndSpill());
+	//pointcut sortAndSpillCloseWriter() : call (void org.apache.hadoop.mapred.IFile.Writer.close(..)) && withincode(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.sortAndSpill());
 
 	//Write key-value
-
-	//pointcut sortAndSpillWrite(DataInputBuffer key, DataInputBuffer value): call (* *.append(..)) && withincode(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.sortAndSpill()) && args(key,value) && !within(Aspect);
+	pointcut sortAndSpillWrite(DataInputBuffer key, DataInputBuffer value): call (* *.append(..)) && withincode(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.sortAndSpill()) && args(key,value);
 	
 	//Combiner
 	pointcut sortAndSpillCombiner(): call(* *.combine(..)) && withincode(* org.apache.hadoop.mapred.MapTask.MapOutputBuffer.sortAndSpill());
@@ -357,30 +358,30 @@ aspect AlojaAspect {
 	}
 
 
-	//flush
-
-	before() : flush(){
-		String s = "Flush";
-		instrumentation(s,"before");
-	}
-
-
-	after() : flush(){
-		String s = "Flush";
-		instrumentation(s,"after");
-	}
+	
 
 	//  ############################SORT AND SPILL#################################
 
 	before() : taskSortAndSpill(){
-		String s = "sortAndSpill";
-		instrumentation(s,"before");
+		generateEvent(Events.MapOutputBuffer, Values.SortAndSpill);
 	}
 
+
 	after() : taskSortAndSpill(){
-		String s = "sortAndSpill";
-		instrumentation(s,"after");
+		generateEvent(Events.MapOutputBuffer, Values.End);
 	}
+
+	//flush
+
+	before() : flush(){
+		generateEvent(Events.MapOutputBuffer, Values.Flush);
+	}
+
+	after() : flush(){
+		generateEvent(Events.MapOutputBuffer, Values.End);
+	}
+
+
 
 	// Spill File Size
 
@@ -408,16 +409,16 @@ aspect AlojaAspect {
 */
 
 	before(int kvstart, int endPosition, Object reporter) : sortAndSpillSort(kvstart,endPosition,reporter){
-		String s = "sortAndSpillSort";
-		instrumentation(s,"before","," + Integer.toString(endPosition - kvstart));
+		generateEvent(Events.MapOutputBuffer, Values.Sort);
+		//instrumentation(s,"before","," + Integer.toString(endPosition - kvstart));
 	}
 	after(int kvstart, int endPosition, Object reporter) returning : sortAndSpillSort(kvstart,endPosition,reporter){
-		String s = "sortAndSpillSort";
-		instrumentation(s,"after","," + Integer.toString(endPosition - kvstart));
+		generateEvent(Events.MapOutputBuffer, Values.End);
+		//instrumentation(s,"after","," + Integer.toString(endPosition - kvstart));
 	}
 
 	// Init writer
-	after() returning : sortAndSpillInitWriter(){
+/*	after() returning : sortAndSpillInitWriter(){
 		String s = "sortAndSpillInitWriter";
 		instrumentation(s,"after");
 	}
@@ -427,34 +428,26 @@ aspect AlojaAspect {
 		String s = "sortAndSpillCloseWriter";
 		instrumentation(s,"after");
 	}
-
-/*
-	after(DataInputBuffer key, DataInputBuffer value) returning : sortAndSpillWrite(key,value){
-		String s = "sortAndSpillWrite";
-		File logFile = getFile();
-		instrumentation(logFile,s,"after");
-		String log = "," + key.getData(); // + "," + value.getData();
-		writeLog(logFile,log);
-	}
 */
+
+	after(DataInputBuffer key, DataInputBuffer value) returning : sortAndSpillWrite(key,value){
+		generateEvent(Events.MapOutputBuffer, Values.SpillRecordDumped);
+	}
+
 	before() : sortAndSpillCombiner(){
-		String s = "sortAndSpillCombiner";
-		instrumentation(s,"before");
+		generateEvent(Events.MapOutputBuffer, Values.Combine);
 	}
 
 	after() returning : sortAndSpillCombiner(){
-		String s = "sortAndSpillCombiner";
-		instrumentation(s,"after");
+		generateEvent(Events.MapOutputBuffer, Values.End);	
 	}
 
 	before() : sortAndSpillSpillIndexWrite(){
-		String s = "sortAndSpillSpillIndexWrite";
-		instrumentation(s,"before");
+		generateEvent(Events.MapOutputBuffer, Values.CreateSpillIndexFile);
 	}
 
 	after() returning : sortAndSpillSpillIndexWrite(){
-		String s = "sortAndSpillSpillIndexWrite";
-		instrumentation(s,"after");
+		generateEvent(Events.MapOutputBuffer, Values.End);
 	}
 
 	/*
