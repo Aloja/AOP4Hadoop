@@ -58,6 +58,7 @@ aspect AlojaAspect {
         public static final int SecondaryNameNode = 11114;
         public static final int DataNode = 11115;
         public static final int Task = 11116;
+        public static final int HeartBeat = 11119;
 //        public static final int MapTask = 11117;
 //        public static final int ReduceTask = 11118;
         public static final int MapOutputBuffer = 33333;
@@ -76,10 +77,6 @@ aspect AlojaAspect {
         public static final int ReducerCopyPhase = 10;
         public static final int ReducerSortPhase = 11;
         public static final int ReducerReducePhase = 12;
-
-		// Events.JobTracker
-		public static final int HeartBeat = 13;
-
 
 		// Events.MapOutputBuffer
         public static final int Flush = 1;
@@ -318,7 +315,7 @@ aspect AlojaAspect {
 	//HEARTBEAT 
 	after(TaskTrackerStatus status,boolean restarted,boolean initialContact,boolean acceptNewTasks,short responseId) : heartbeat(status, restarted, initialContact, acceptNewTasks,responseId){
 		// SAMPLE trackername: tracker_vagrant-99-01:localhost/127.0.0.1:38149
-		generateEvent(Events.JobTracker, status.getTrackerName().replace(':','-').replace('/','_'));
+		generateEvent(Events.HeartBeat, status.getTrackerName().replace(':','-').replace('/','_'));
 	}
 
 
