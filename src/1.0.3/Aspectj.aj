@@ -175,6 +175,12 @@ aspect AlojaAspect {
 
 	pointcut startDataNode(): execution(* org.apache.hadoop.hdfs.server.datanode.DataNode.startDataNode(..));
 
+
+	//RegisterTaskTracker Pointcut
+
+	pointcut registerTaskTracker(): execution(* org.apache.hadoop.mapred.TaskTracker.initialize(..));
+
+
 	//RegisterNameNode Pointcut
 
 	pointcut initializeNameNode():  execution(* org.apache.hadoop.hdfs.server.namenode.NameNode.initialize(..));
@@ -291,8 +297,11 @@ aspect AlojaAspect {
 
 	}
 
-	//RegisterTaskTracker ?
+	//RegisterTaskTracker 
+	after() : registerTaskTracker(){
+		generateEvent(Events.TaskTracker, Values.Start);
 
+	}
 
 	//RegisterNameNode
 
