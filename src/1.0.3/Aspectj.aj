@@ -105,7 +105,8 @@ aspect AlojaAspect {
 		try{
 			String hostname = InetAddress.getLocalHost().getHostName();
 			long pid = getPID();
-			LOG.info(hostname+","+pid+",2:"+hostname+":2:"+pid+":1:"+System.currentTimeMillis()+":"+key+":"+value);
+			//LOG.info(hostname+","+pid+",2:"+hostname+":2:"+pid+":1:"+System.currentTimeMillis()+":"+key+":"+value);
+			LOG.info("AOPLOG,"+pid+","+System.currentTimeMillis()+","+key+","+value);
 		}
 		catch (Exception e) {
 			LOG.error(e, e);
@@ -119,7 +120,8 @@ aspect AlojaAspect {
 		try{
 			String hostname = InetAddress.getLocalHost().getHostName();
 			long pid = getPID();
-			LOG.info(hostname+","+pid+",2:"+hostname+":2:"+pid+":1:"+System.currentTimeMillis()+":"+key+":"+value);
+			//LOG.info(hostname+","+pid+",2:"+hostname+":2:"+pid+":1:"+System.currentTimeMillis()+":"+key+":"+value);
+			LOG.info(hostname+","+pid+","+System.currentTimeMillis()+","+key+","+value);
 		}
 		catch (Exception e) {
 			LOG.error(e, e);
