@@ -59,8 +59,6 @@ aspect AlojaAspect {
         public static final int DataNode = 11115;
         public static final int Task = 11116;
         public static final int HeartBeat = 11119;
-//        public static final int MapTask = 11117;
-//        public static final int ReduceTask = 11118;
         public static final int MapOutputBuffer = 33333;
         public static final int MapTaskOutputSize = 44444;
     }
@@ -128,6 +126,35 @@ aspect AlojaAspect {
 
 		}
 	}
+
+/*	private void writeLog(Integer key, Integer value) {
+
+		try {
+			String hostname = InetAddress.getLocalHost().getHostName();
+			long pid = getPID();
+			BufferedWriter bw = new BufferedWriter(new FileWriter(new File("/tmp/aloja-"+getPID()+".log"),true));
+			bw.write("AOPLOG,"+hostname+","+pid+","+System.currentTimeMillis()+","+key+","+value);
+			bw.close();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	private void writeLog(Integer key, String value) {
+
+		try {
+			String hostname = InetAddress.getLocalHost().getHostName();
+			long pid = getPID();
+			BufferedWriter bw = new BufferedWriter(new FileWriter(new File("/tmp/aloja-"+getPID()+".log"),true));
+			bw.write("AOPLOG,"+hostname+","+pid+","+System.currentTimeMillis()+","+key+","+value);
+			bw.close();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}*/
 
 
 	/*private void generateEVent(Integer key[], Integer value) {
@@ -481,10 +508,7 @@ aspect AlojaAspect {
 	}
 
 	before(TaskStatus.Phase phase) : setPhase(phase) { //END OF A PHASE (SORT OR COPY)
-			generateEvent(Events.TaskTracker, Values.End);
-	}
-
-	after(TaskStatus.Phase phase) returning: setPhase(phase) { 
+		generateEvent(Events.TaskTracker, Values.End);
 		if (phase == TaskStatus.Phase.SORT) {
 			generateEvent(Events.TaskTracker, Values.ReducerSortPhase);
 		}
@@ -492,6 +516,10 @@ aspect AlojaAspect {
 			generateEvent(Events.TaskTracker, Values.ReducerReducePhase);
 		}
 	}
+
+	//after(TaskStatus.Phase phase) returning: setPhase(phase) { 
+		
+	//}
 
 	after() : reducer(){ //END OF REDUCE PHASE
 			generateEvent(Events.TaskTracker, Values.End);	}
