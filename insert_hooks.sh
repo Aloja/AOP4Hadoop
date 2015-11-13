@@ -62,21 +62,21 @@ echo "###########################################################"
 # echo "################# WEAVING CORE ##########################"
 
 
-# ajc -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_CORE_FILE_PATH} $SOURCE_AJC/Aspect-2.0.6.aj -outjar $PATCHED_HADOOP_CORE_FILE > $INSTRUMENTATION_PATH/detectedPointCuts.txt
+#./lib/ajc -1.7 -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_CORE_FILE_PATH} $SOURCE_AJC/Aspect-2.6.0-common.aj -outjar $PATCHED_HADOOP_CORE_FILE > $INSTRUMENTATION_PATH/detectedPointCuts.txt
 
 echo "################# WEAVING MAPRED ##########################"
 
-#ajc -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_MAPRED_FILE_PATH} $SOURCE_AJC/Aspect-2.6.0-mapred.aj -outjar $PATCHED_HADOOP_MAPRED_FILE > $INSTRUMENTATION_PATH/detectedPointCuts.txt
+./lib/ajc  -1.7 -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_MAPRED_FILE_PATH} $SOURCE_AJC/Aspect-2.6.0-mapred.aj -outjar $PATCHED_HADOOP_MAPRED_FILE > $INSTRUMENTATION_PATH/detectedPointCuts.txt
 
 echo "################# WEAVING HDFS ############################"
 #echo $CLASSPATH
 
-#ajc -1.6 -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_HDFS_FILE_PATH} $SOURCE_AJC/Aspect-2.6.0-hdfs.aj -outjar $PATCHED_HADOOP_HDFS_FILE >> $INSTRUMENTATION_PATH/detectedPointCuts.txt
+./lib/ajc -1.7 -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_HDFS_FILE_PATH} $SOURCE_AJC/Aspect-2.6.0-hdfs.aj -outjar $PATCHED_HADOOP_HDFS_FILE >> $INSTRUMENTATION_PATH/detectedPointCuts.txt
 
 echo "################# WEAVING YARN ############################"
 
 #ajc -1.6 -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_YARN_RESOURCEMANAGER_FILE_PATH} $SOURCE_AJC/Aspect-2.6.0-yarn_resourcemanager.aj -outjar $PATCHED_HADOOP_YARN_RESOURCEMANAGER_FILE >> $INSTRUMENTATION_PATH/detectedPointCuts.txt
-ajc -1.6 -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_YARN_CLIENT_FILE_PATH} $SOURCE_AJC/Aspect-2.6.0-yarn_client.aj -outjar $PATCHED_HADOOP_YARN_CLIENT_FILE >> $INSTRUMENTATION_PATH/detectedPointCuts.txt
+./lib/ajc -1.7 -showWeaveInfo -classpath ${CLASSPATH} -inpath ${HADOOP_YARN_CLIENT_FILE_PATH} $SOURCE_AJC/Aspect-2.6.0-yarn_client.aj -outjar $PATCHED_HADOOP_YARN_CLIENT_FILE >> $INSTRUMENTATION_PATH/detectedPointCuts.txt
 
 echo "###########################################################"
 echo "################# WEAVING COMPLETE ########################"

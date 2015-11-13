@@ -13,9 +13,9 @@ import org.apache.commons.logging.LogFactory;
  * @author Alejandro
  */
 
-aspect AlojaAspect {		
+aspect AlojaAspectMapred {		
 
-	private static final Log LOG = LogFactory.getLog(AlojaAspect.class);
+	private static final Log LOG = LogFactory.getLog(AlojaAspectMapred.class);
 
 	private static long getPID() {
 		String name = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();

@@ -11,6 +11,7 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.util.DataChecksum;
+import org.apache.hadoop.hdfs.server.namenode.FSNamesystem;
 import java.net.Socket;
 
 
@@ -178,13 +179,14 @@ aspect AlojaAspect {
 		###########################################################################
 	*/
 
-	pointcut defaultBlockSize(): call(* org.apache.hadoop.hdfs.DFSClient.getDefaultBlockSize());
+	//pointcut defaultBlockSize(): call(* org.apache.hadoop.hdfs.DFSClient.getDefaultBlockSize());
 	//pointcut blockSize(): call(* org.apache.hadoop.hdfs.DFSClient.getBlockSize(..));
 	pointcut createDFSFile(String src,FsPermission permission,boolean overwrite,boolean createParent,short replication,long blockSize,Progressable progress, int buffersize): execution (* org.apache.hadoop.hdfs.DFSClient.create(..)) && args(src,permission,overwrite,createParent,replication,blockSize,progress,buffersize);
-	pointcut runDataStreamer(): execution (* org.apache.hadoop.hdfs.DFSClient.DFSOutputStream.DataStreamer.run());
+	//pointcut runDataStreamer(): execution (* org.apache.hadoop.hdfs.DFSClient.DFSOutputStream.DataStreamer.run());
 	//pointcut readEntireBufferFromDataNode(byte buf[],int off,int len): execution(* org.apache.hadoop.hdfs.DFSClient.DFSInputStream.read(..)) && args(buf[],off,len);
 	//pointcut readFromDataNode(): call (* org.apache.hadoop.hdfs.DFSClient.DFSInputStream.blockSeekTo(..)) && withincode(* org.apache.hadoop.hdfs.DFSClient.DFSInputStream.read(..));
 	pointcut newBlockReader(Socket sock, String file, long blockId, Token<BlockTokenIdentifier> accessToken, long genStamp, long startOffset, long len, int bufferSize, boolean verifyChecksum, String clientName): execution (* org.apache.hadoop.hdfs.DFSClient.BlockReader.newBlockReader(..)) && args(sock,file,blockId,accessToken,genStamp,startOffset,len,bufferSize,verifyChecksum,clientName);
+	pointcut dfsState(): execution(* org.apache.hadoop.hdfs.server.namenode.FSNamesystem..*(..));
 
 	/*
 	Advices
@@ -418,7 +420,7 @@ aspect AlojaAspect {
 		############################NETWORK########################################
 		###########################################################################
 	*/
-
+/*
 	after() returning(long blockSize) : defaultBlockSize() {
 		String s = "Network-defaultBlockSize";
 		instrumentation(s,"after",", size: " + Long.toString(blockSize));
@@ -430,12 +432,10 @@ aspect AlojaAspect {
 	// 	String log = ", size: " + Long.toString(blockSize);
 	// 	writeLog(logFile,log);
 	// }
-
+*/
 	after(String src,FsPermission permission,boolean overwrite, boolean createParent,short replication,long blockSize,Progressable progress, int buffersize): createDFSFile(src,permission,overwrite,createParent,replication,blockSize,progress,buffersize) {
 		String s = "Network-CreateDFSFile";
-
-		//MODIFIED!!!!!!-----!!!!!!!!!!!
-		instrumentation(s,"after",", path: " + src + ", permission: " + permission.toString()); // + ", overwrite: " + String.valueOf(overwrite) + ", createParent: " + String.valueOf(createParent) + ", replication: " + Short.toString(replication) + ", blockSize: " + Long.toString(blockSize) + ", buffersize: " + Integer.toString(buffersize));
+		instrumentation(s,"after",", path: " + src + ", permission: " + permission.toString()) + ", overwrite: " + String.valueOf(overwrite) + ", createParent: " + String.valueOf(createParent) + ", replication: " + Short.toString(replication) + ", blockSize: " + Long.toString(blockSize) + ", buffersize: " + Integer.toString(buffersize));
 	}
 	before(): runDataStreamer() {
 		String s = "DataStreamer";
@@ -460,6 +460,12 @@ aspect AlojaAspect {
 		extra += "," + Long.toString(len);
 		extra += ", blockId: " + Long.toString(blockId);
 		extra += ", startOffset: " + Long.toString(startOffset);		
+		instrumentation(s,"after",extra);
+	}
+
+	after() : dfsState() {
+		Sting = "DFSstate";
+		Sting extra = ", " + jointPoint.getThis().toString();
 		instrumentation(s,"after",extra);
 	}
 }

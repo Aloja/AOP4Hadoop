@@ -23,9 +23,9 @@ import org.apache.commons.logging.LogFactory;
  * @author Alejandro
  */
 
-aspect AlojaAspect2 {		
+aspect AlojaAspectHdfs {		
 
-	private static final Log LOG = LogFactory.getLog(AlojaAspect2.class);
+	private static final Log LOG = LogFactory.getLog(AlojaAspectHdfs.class);
 
 	private static long getPID() {
 		String name = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();

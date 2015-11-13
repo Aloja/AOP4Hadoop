@@ -10,9 +10,9 @@ import org.apache.commons.logging.LogFactory;
  * @author Alejandro
  */
 
-aspect AlojaAspect {		
+aspect AlojaAspectYarnClient {		
 
-	private static final Log LOG = LogFactory.getLog(AlojaAspect.class);
+	private static final Log LOG = LogFactory.getLog(AlojaAspectYarnClient.class);
 
 	private static long getPID() {
 		String name = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
